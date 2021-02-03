@@ -10,11 +10,13 @@ OLD_NAME = [""]
 
 
 def groupme_media_name(fname) -> str:
-    """ media from groupme urls is formatted oddly, like:
+    """ image media from groupme urls is formatted oddly, like:
     828x809.jpeg.b083fc7771d848d78c8466f558202063
 
         Want to return:
     b083fc7771d848d78c8466f558202063.828x809.jpeg
+
+    (video media is named fine, don't change)
     """
     res, ext, _id = fname.split(".")
     ext = "jpg" if ext == "jpeg" else ext
@@ -33,7 +35,9 @@ def get_text(msg) -> str:
     for attachment in msg["attachments"]:
         if attachment["type"] in ["image", "video"]:
             # first download the file
-            dst_file = groupme_media_name(attachment["url"].split("/")[-1])
+            dst_file = attachment["url"].split("/")[-1]
+            if attachment["type"] == "image":
+                dst_file = groupme_media_name(dst_file)
             download_file(attachment["url"], dst_file)
 
             # then update our text
