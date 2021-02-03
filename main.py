@@ -66,6 +66,13 @@ def format_msg(msg) -> str:
             # possible bug: might not escape group with double quote in name
             return f"{d_res} - {author} changed the subject from \"{old_name}\" to \"{new_name}\""
 
+        if "event" in msg and msg["event"]["type"] == "group.avatar_change":
+            url = msg["event"]["data"]["avatar_url"]
+            # possible bug:
+            # assume avatar is an image of type png or jpg (is this always correct?)
+            ext = "png" if ".png." in url else "jpg"
+            download_file(url, f"avatar.{ext}")
+
         return ""
 
     text = get_text(msg)
