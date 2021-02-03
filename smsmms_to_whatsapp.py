@@ -2,9 +2,16 @@
 
 import base64
 import datetime
+import json
 import os
 import sys
 import xml.etree.ElementTree as ET
+
+from typing import Dict
+
+
+# map of phone number -> user names
+USER_MAP: Dict[str, str] = {}
 
 
 CONTENT_MAP = {
@@ -23,7 +30,13 @@ def determine_author(msg) -> str:
         # 137: sender
         # 151: CC'd
         if addr.attrib["type"] == "137":
-            return addr.attrib["address"]
+            phone_number = addr.attrib["address"].lstrip("+")
+            if phone_number in USER_MAP:
+                return USER_MAP[phone_number]
+            else:
+                full_name = input(f"Full name for phone number: {phone_number}: ").strip()
+                USER_MAP[phone_number] = full_name
+                return full_name
 
     raise Exception("No sender found for msg")
 
@@ -63,17 +76,21 @@ def msg_to_text(msg) -> str:
     return f"{d_str} - {author}: {text}"
 
 
-def main(fname):
+def main(groupname, fname):
     tree = ET.parse(fname)
     root = tree.getroot()
 
     try:
-        os.mkdir("export")
+        os.mkdir(f"telegram-{groupname}")
     except FileExistsError:
         pass
-    os.chdir("export")
+    os.chdir(f"telegram-{groupname}")
 
-    with open("output.txt", "w") as f:
+    if os.path.exists("members.json"):
+        with open("members.json") as f:
+            USER_MAP.update(json.load(f))
+
+    with open(f"WhatsApp Chat with {groupname}.txt", "w") as f:
         for msg in root:
             output = msg_to_text(msg)
 
@@ -81,7 +98,11 @@ def main(fname):
             f.write(output)
             f.write("\n")
 
+    with open("members.json", "w") as f:
+        json.dump(USER_MAP, f)
+
 
 if __name__ == "__main__":
-    fname = sys.argv[1]
-    main(fname)
+    groupname = sys.argv[1]
+    fname = sys.argv[2]
+    main(groupname, fname)
