@@ -63,6 +63,7 @@ def format_msg(msg) -> str:
             author, new_name = msg["text"].split(" changed the group's name to ")
             OLD_NAME.pop()
             OLD_NAME.append(new_name)
+            # possible bug: might not escape group with double quote in name
             return f"{d_res} - {author} changed the subject from \"{old_name}\" to \"{new_name}\""
 
         return ""
