@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
 
+"""
+Read a messages.json (exported from a GroupMe chat) and convert
+to a form similar to a WhatsApp .txt export.
+
+This can be imported by Telegram into DMs/Groupchats easily.
+"""
+
 import datetime
 import json
 import os
@@ -92,11 +99,16 @@ def main(fname):
         pass
     os.chdir(dst)
 
-    with open(f"WhatsApp Chat with {OLD_NAME[0]}.txt", "w") as f:
+    filename = f"WhatsApp Chat with {OLD_NAME[0]}.txt"
+    with open(filename, "w") as f:
         for msg in j[::-1]:
             if o_msg := format_msg(msg):
                 f.write(o_msg)
                 f.write("\n")
+
+    new_filename = f"WhatsApp Chat with {OLD_NAME[0]}.txt"
+    if new_filename != filename:
+        os.rename(filename, new_filename)
 
 
 if __name__ == "__main__":
