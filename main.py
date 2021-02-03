@@ -50,6 +50,13 @@ def format_msg(msg) -> str:
     d_res = d.strftime("%-m/%d/%y, %H:%M")
 
     if msg["user_id"] == "system":
+        if " changed the group's name to " in msg["text"]:
+            old_name = OLD_NAME[0]
+            author, new_name = msg["text"].split(" changed the group's name to ")
+            OLD_NAME.pop()
+            OLD_NAME.append(new_name)
+            return f"{d_res} - {author} changed the subject from \"{old_name}\" to \"{new_name}\""
+
         return ""
 
     text = get_text(msg)
@@ -70,5 +77,9 @@ def main(fname):
 
 
 if __name__ == "__main__":
-    fname = sys.argv[1]
+    # gross arg parsing
+    # first arg should be the original name of the group (groupme export doesnt say it???)
+    OLD_NAME = [sys.argv[1]]
+    # second arg should be the messages.json you got from groupme export
+    fname = sys.argv[2]
     main(fname)
