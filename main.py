@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import os
 import sys
 import urllib.request
 
@@ -24,6 +25,9 @@ def groupme_media_name(fname) -> str:
 
 
 def download_file(url, fname):
+    if os.path.exists(fname):
+        return
+
     with urllib.request.urlopen(url) as _url:
         with open(fname, "wb") as f:
             f.write(_url.read())
@@ -73,8 +77,15 @@ def main(fname):
     with open(fname) as f:
         j = json.load(f)
 
-    with open(f"output-{chat_id}.txt", "w") as f:
-        for msg in j:
+    dst = f"telegram-{chat_id}"
+    try:
+        os.mkdir(dst)
+    except FileExistsError:
+        pass
+    os.chdir(dst)
+
+    with open(f"WhatsApp Chat with {OLD_NAME[0]}.txt", "w") as f:
+        for msg in j[::-1]:
             if o_msg := format_msg(msg):
                 f.write(o_msg)
                 f.write("\n")
