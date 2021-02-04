@@ -24,6 +24,11 @@ CONTENT_MAP = {
 }
 
 
+def participants(msg) -> str:
+    s = set(["+" + a.attrib['address'].lstrip("+") for a in msg.find("addrs").findall("addr")])
+    return ", ".join(sorted(s))
+
+
 def determine_author(msg) -> str:
     for addr in msg.find("addrs"):
         # mms codes:
@@ -66,7 +71,10 @@ def download_msg(msg) -> str:
     return ""
 
 
-def msg_to_text(msg) -> str:
+def msg_to_text(msg, allowed) -> str:
+    if participants(msg) not in allowed:
+        return ""
+
     datestamp = msg.attrib["date"]
     date = datetime.datetime.fromtimestamp(int(datestamp) / 1000)
     d_str = date.strftime("%-m/%d/%y %H:%M")
@@ -80,6 +88,29 @@ def main(groupname, fname):
     tree = ET.parse(fname)
     root = tree.getroot()
 
+    _convos = set()
+    for msg in root:
+        _convos.update([participants(msg)])
+
+    convos = sorted(list(_convos))
+
+    if len(convos) > 1:
+        # this is somewhat hacky, because MMS addrs do not always have the country code
+        # before the phone number. Parsing through all addrs and keeping track of the sender
+        # and keeping track of all the country codes properly may be a bit more work
+        # than is necessary yet.
+        print("There are multiple conversations in this SMS/MMS backup.")
+        print("(sometimes, this can happen if your own phone number does not show up in")
+        print("all messages of a particular MMS group chat)")
+        print(f"Please select which conversations you'd like to include in: '{groupname}'")
+        print()
+        for i, c in enumerate(convos):
+            print(i, c)
+        print()
+        answer = input("Space-separated list of choices: ")
+
+    allowed = [c for i, c in enumerate(convos) if i in map(int, answer.split(" "))]
+
     try:
         os.mkdir(f"telegram-{groupname}")
     except FileExistsError:
@@ -92,11 +123,11 @@ def main(groupname, fname):
 
     with open(f"WhatsApp Chat with {groupname}.txt", "w") as f:
         for msg in root:
-            output = msg_to_text(msg)
+            if output := msg_to_text(msg, allowed):
 
-            # todo - check encoding?
-            f.write(output)
-            f.write("\n")
+                # todo - check encoding?
+                f.write(output)
+                f.write("\n")
 
     with open("members.json", "w") as f:
         json.dump(USER_MAP, f)
