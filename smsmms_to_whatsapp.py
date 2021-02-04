@@ -55,10 +55,12 @@ def convert_3gpp(fname) -> str:
     """
     try:
         output_mp4 = Path(fname).stem + ".mp4"
-        result = subprocess.call([
-            "ffmpeg", "-i", fname, output_mp4
-        ])
-        if result == 0:
+        result = subprocess.run(
+            ["ffmpeg", "-i", fname, output_mp4],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            os.remove(fname)
             return output_mp4
     except FileNotFoundError:
         pass
