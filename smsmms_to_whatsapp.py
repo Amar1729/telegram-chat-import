@@ -111,15 +111,17 @@ def main(groupname, fname):
 
     allowed = [c for i, c in enumerate(convos) if i in map(int, answer.split(" "))]
 
+    if os.path.exists("members.json"):
+        with open("members.json") as f:
+            USER_MAP.update(json.load(f))
+
+    cur_dir = os.getcwd()
+
     try:
         os.mkdir(f"telegram-{groupname}")
     except FileExistsError:
         pass
     os.chdir(f"telegram-{groupname}")
-
-    if os.path.exists("members.json"):
-        with open("members.json") as f:
-            USER_MAP.update(json.load(f))
 
     with open(f"WhatsApp Chat with {groupname}.txt", "w") as f:
         for msg in root:
@@ -128,6 +130,8 @@ def main(groupname, fname):
                 # todo - check encoding?
                 f.write(output)
                 f.write("\n")
+
+    os.chdir(cur_dir)
 
     with open("members.json", "w") as f:
         json.dump(USER_MAP, f)
