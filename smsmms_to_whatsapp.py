@@ -76,10 +76,9 @@ def download_msg(msg) -> str:
         elif ct == "text/plain":
             return part.attrib["text"]
         elif ct in CONTENT_MAP:
-            # todo - this doesnt always work?
-            # may have to generate UUIDs or base off of timestamp for media
-            basename = part.attrib["name"] if part.attrib["name"] != "null" else "media."
-            fname = msg.attrib["date"] + "-" + ".".join(basename.split(".")[:-1]) + "." + CONTENT_MAP[ct]
+            basename = part.attrib["name"] if part.attrib["name"] != "null" else "media"
+            # datestamp-originalname.newextension
+            fname = f"{msg.attrib['date']}-{Path(basename).stem}.{CONTENT_MAP[ct]}"
             data = base64.b64decode(part.attrib["data"])
 
             with open(fname, "wb") as f:
