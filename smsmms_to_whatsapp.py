@@ -4,9 +4,11 @@ import base64
 import datetime
 import json
 import os
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
+from pathlib import Path
 from typing import Dict
 
 
@@ -46,6 +48,23 @@ def determine_author(msg) -> str:
     raise Exception("No sender found for msg")
 
 
+def convert_3gpp(fname) -> str:
+    """ MMS occasionally sends videos or gifs as .3gpp media files.
+    Telegram will recognize these as video, but won't play them.
+    If the user has ffmpeg installed, convert them to mp4.
+    """
+    try:
+        output_mp4 = Path(fname).stem + ".mp4"
+        result = subprocess.call([
+            "ffmpeg", "-i", fname, output_mp4
+        ])
+        if result == 0:
+            return output_mp4
+    except FileNotFoundError:
+        pass
+    return fname
+
+
 def download_msg(msg) -> str:
     """ Returns plaintext if message is plaintext.
     if it is a media attachment, download the attached media and return its filename """
@@ -65,6 +84,10 @@ def download_msg(msg) -> str:
 
             with open(fname, "wb") as f:
                 f.write(data)
+
+            if ct == "video/3gpp":
+                print("3gpp video found. Attempting conversion with ffmpeg.")
+                fname = convert_3gpp(fname)
 
             return f"{fname} (file attached)"
 
