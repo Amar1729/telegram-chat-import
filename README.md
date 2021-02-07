@@ -41,7 +41,25 @@ Exporting SMS/MMS data can be done on Android with the "SMS Backup and Restore",
 
 Once you have the XML file, the [`smsmms_to_whatsapp.py`](./smsmms_to_whatsapp.py) can be run to convert the XML to a directory containing any media (images or video) included in the chat as well as a `.txt` file.
 
-### 3gpp Conversion
+#### Group MMS
+
+SMS Backup and Restore will export all selected chats into one XML file, which makes it difficult to split up different chats during one run of the scripts. Also, not all MMS messages have the same group of addressees, so this script can't always determine which messages are part of which group.
+
+It is safest to run this script on the output of a single MMS group, but there is also an interactive dialog this script has that allows the user to choose which unique groups of recipients are part of the target chat group.
+
+```
+There are multiple conversations in this SMS/MMS backup.
+(sometimes, this can happen if your own phone number does not show up in
+all messages of a particular MMS group chat)
+Please select which conversations you'd like to include in: 'groupname'
+
+1: +15553337777 +12224448888
+2: +15553337777 +12224448888 +19995557777
+```
+
+In this example, the person who exported the MMS chat has the phone number `+19995557777`, so the messages they sent do not have a recipient of that number. Enter `1 2` to combine all those messages into the same exported group chat txt file.
+
+#### 3gpp Conversion
 
 Some SMS clients will share gifs or small video as `3gpp`-formatted video (commonly used format over MMS), which Telegram will recognize as a video but won't play natively. If you have `ffmpeg` installed, the sms script will automatically convert any 3gpp video to mp4.
 
