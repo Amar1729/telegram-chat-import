@@ -27,7 +27,7 @@ The scripts in this directory require a group name (can be arbitrary) as the fir
 python3 smsmms_to_whatsapp.py "roommate chat" sms-20210203161451.xml
 
 # for groupme
-python3 groupme_to_whatsapp.py "roommate chat" 11339841/message.json
+python3 groupme_to_whatsapp.py "roommate chat" 11539840/message.json
 ```
 
 ## Supported Chats
