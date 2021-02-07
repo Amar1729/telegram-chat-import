@@ -101,7 +101,7 @@ def msg_to_text(msg, allowed) -> str:
 
     datestamp = msg.attrib["date"]
     date = datetime.datetime.fromtimestamp(int(datestamp) / 1000)
-    d_str = date.strftime("%-m/%d/%y %H:%M")
+    d_str = date.strftime("%-m/%d/%y, %H:%M")
 
     author = determine_author(msg)
     text = download_msg(msg)
