@@ -4,6 +4,20 @@ As of January 2021, Telegram now offers a built-in feature to [import chat histo
 
 Telegram's import (from WhatsApp) feature works by importing a text file that WhatsApp exports from a chat. Luckily this text file has a simple format, so we can reformat exported data from other chat apps into the WhatsApp format and just import that into Telegram.
 
+### Chat Export Format
+
+When exporting chats from WhatsApp, you get text files that are roughly formatted like so:
+
+```
+7/18/20, 21:07 - First Last: Hello world
+7/18/20, 21:07 - First Last: media.jpg (file attached)
+7/18/20, 21:08 - First Last: This is a long
+multiline
+message
+```
+
+These scripts take exported data from other chat apps and reformat them to look like this. I have not tested replies (which WhatsApp supports, but SMS/GroupMe do not), and likes are not saved since Telegram does not support them. Telegram does not import changes to the group chat name or avatar.
+
 ## General Usage
 
 The scripts in this directory require a group name (can be arbitrary) as the first argument, and a specific file containing the exported data as the second argument (this differs based on which chat you are exporting from).
